@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Test backend
+        working-directory: backend
+        run: mvn --batch-mode verify
+
+  public-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: public-web/package-lock.json
+      - name: Install dependencies
+        working-directory: public-web
+        run: npm ci
+      - name: Lint
+        working-directory: public-web
+        run: npm run lint
+      - name: Build
+        working-directory: public-web
+        env:
+          BACKEND_INTERNAL_URL: http://127.0.0.1:8080
+          SKIP_BACKEND_FETCH_DURING_BUILD: 'true'
+        run: npm run build
+
+  admin-flutter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Install dependencies
+        working-directory: admin-flutter
+        run: flutter pub get
+      - name: Analyze
+        working-directory: admin-flutter
+        run: flutter analyze
+      - name: Test
+        working-directory: admin-flutter
+        run: flutter test
