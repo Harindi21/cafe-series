@@ -32,3 +32,4 @@ admin-flutter/.flutter-plugins-dependencies
 infra/.data/
 coverage/
 reports/
+public-web/next-env.d.ts
