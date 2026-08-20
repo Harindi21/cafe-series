@@ -6,7 +6,7 @@ RUN mvn --batch-mode -DskipTests dependency:go-offline
 COPY src src
 RUN mvn --batch-mode -DskipTests package
 
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:24-jre
 RUN useradd --system --uid 10001 appuser
 WORKDIR /app
 COPY --from=build /workspace/target/*.jar app.jar
