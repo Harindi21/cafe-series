@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1.7
-FROM node:24-alpine AS deps
+FROM node:26-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-FROM node:24-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -13,7 +13,7 @@ ENV BACKEND_INTERNAL_URL=$BACKEND_INTERNAL_URL
 ENV SKIP_BACKEND_FETCH_DURING_BUILD=true
 RUN npm run build
 
-FROM node:24-alpine AS runtime
+FROM node:26-alpine AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
 RUN addgroup -S nextjs && adduser -S nextjs -G nextjs
