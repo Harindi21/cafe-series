@@ -1,4 +1,4 @@
-import { formatMoney, getMenu } from '@/lib/catalog';
+import { getMenu } from '@/lib/catalog';
 import {
   getContact,
   getSiteContent,
