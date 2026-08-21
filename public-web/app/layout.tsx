@@ -2,11 +2,16 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Cinnamon & Clay - Slow coffee. Warm bakes. Good company.',
-  description: 'A neighbourhood coffee house in the heart of Colombo.'
+  title: 'Kirikopi — Slow coffee. Warm bakes. Good company.',
+  description:
+    'A neighbourhood coffee house in the heart of Colombo.'
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({
+  children
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en">
       <body>{children}</body>
