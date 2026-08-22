@@ -4,11 +4,8 @@ import org.springframework.stereotype.Component;
 
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
-import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.InputStream;
@@ -20,14 +17,12 @@ class S3MediaStorage implements MediaStorage {
     private final MediaProperties properties;
 
     S3MediaStorage(
-            S3Client s3Client,
-            MediaProperties properties
-    ) {
-        this.s3Client = s3Client;
-        this.properties = properties;
-        ensureBucketExists();
-    }
-
+        S3Client s3Client,
+        MediaProperties properties
+) {
+    this.s3Client = s3Client;
+    this.properties = properties;
+}
     @Override
     public void store(
             String objectKey,
@@ -67,19 +62,4 @@ class S3MediaStorage implements MediaStorage {
         s3Client.deleteObject(request);
     }
 
-    private void ensureBucketExists() {
-        try {
-            s3Client.headBucket(
-                    HeadBucketRequest.builder()
-                            .bucket(properties.bucket())
-                            .build()
-            );
-        } catch (NoSuchBucketException exception) {
-            s3Client.createBucket(
-                    CreateBucketRequest.builder()
-                            .bucket(properties.bucket())
-                            .build()
-            );
-        }
-    }
 }

@@ -68,4 +68,8 @@ class MediaAssetEntity {
     MediaPurpose purpose() {
         return purpose;
     }
+
+    boolean isActive() {
+    return active;
+}
 }
