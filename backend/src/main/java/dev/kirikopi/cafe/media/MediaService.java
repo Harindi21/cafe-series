@@ -1,17 +1,26 @@
 package dev.kirikopi.cafe.media;
 
+import java.io.InputStream;
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import dev.kirikopi.cafe.shared.ResourceNotFoundException;
 
 @Service
 class MediaService {
 
     private final MediaAssetRepository repository;
+    private final MediaStorage storage;
 
-    MediaService(MediaAssetRepository repository) {
+    MediaService(
+            MediaAssetRepository repository,
+            MediaStorage storage
+    ) {
         this.repository = repository;
+        this.storage = storage;
     }
 
     @Transactional(readOnly = true)
@@ -20,6 +29,23 @@ class MediaService {
                 first(MediaPurpose.HERO),
                 first(MediaPurpose.ABOUT),
                 list(MediaPurpose.GALLERY)
+        );
+    }
+
+    @Transactional(readOnly = true)
+    MediaContent openPublicContent(UUID id) {
+        var asset = repository.findById(id)
+                .filter(MediaAssetEntity::isActive)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Media asset was not found."
+                        )
+                );
+
+        return new MediaContent(
+                asset.contentType(),
+                asset.sizeBytes(),
+                storage.open(asset.objectKey())
         );
     }
 
@@ -59,6 +85,13 @@ class MediaService {
             String id,
             String url,
             String alt
+    ) {
+    }
+
+    record MediaContent(
+            String contentType,
+            long sizeBytes,
+            InputStream stream
     ) {
     }
 }

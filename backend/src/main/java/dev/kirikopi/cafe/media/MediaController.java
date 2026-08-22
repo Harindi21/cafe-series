@@ -1,5 +1,8 @@
 package dev.kirikopi.cafe.media;
 
+import java.time.Duration;
+import java.util.UUID;
+
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -7,26 +10,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.time.Duration;
-import java.util.UUID;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @RestController
 @RequestMapping("/api/v1/media")
 class MediaController {
 
     private final MediaService mediaService;
-    private final MediaAssetRepository repository;
-    private final MediaStorage storage;
 
-    MediaController(
-            MediaService mediaService,
-            MediaAssetRepository repository,
-            MediaStorage storage
-    ) {
+    MediaController(MediaService mediaService) {
         this.mediaService = mediaService;
-        this.repository = repository;
-        this.storage = storage;
     }
 
     @GetMapping
@@ -40,23 +33,26 @@ class MediaController {
     }
 
     @GetMapping("/{id}/content")
-    ResponseEntity<byte[]> getContent(
+    ResponseEntity<StreamingResponseBody> getContent(
             @PathVariable UUID id
     ) {
-        var asset = repository.findById(id)
-                .filter(MediaAssetEntity::isActive)
-                .orElseThrow(() ->
-                        new IllegalArgumentException("Media asset not found")
-                );
+        var content = mediaService.openPublicContent(id);
 
-        var bytes = storage.load(asset.objectKey());
+        StreamingResponseBody body = outputStream -> {
+            try (var inputStream = content.stream()) {
+                inputStream.transferTo(outputStream);
+            }
+        };
 
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(asset.contentType()))
+                .contentType(
+                        MediaType.parseMediaType(content.contentType())
+                )
+                .contentLength(content.sizeBytes())
                 .cacheControl(
                         CacheControl.maxAge(Duration.ofDays(7))
                                 .cachePublic()
                 )
-                .body(bytes);
+                .body(body);
     }
 }

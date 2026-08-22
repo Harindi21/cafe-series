@@ -11,7 +11,7 @@ interface MediaStorage {
             String contentType
     );
 
-    byte[] load(String objectKey);
+    InputStream open(String objectKey);
 
     void delete(String objectKey);
 }

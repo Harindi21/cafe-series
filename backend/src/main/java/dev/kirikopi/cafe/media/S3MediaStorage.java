@@ -1,5 +1,7 @@
 package dev.kirikopi.cafe.media;
 
+import java.io.InputStream;
+
 import org.springframework.stereotype.Component;
 
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -8,15 +10,13 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import java.io.InputStream;
-
 @Component
 class S3MediaStorage implements MediaStorage {
 
     private final S3Client s3Client;
     private final MediaProperties properties;
 
-    S3MediaStorage(
+S3MediaStorage(
         S3Client s3Client,
         MediaProperties properties
 ) {
@@ -43,14 +43,14 @@ class S3MediaStorage implements MediaStorage {
     }
 
     @Override
-    public byte[] load(String objectKey) {
-        var request = GetObjectRequest.builder()
-                .bucket(properties.bucket())
-                .key(objectKey)
-                .build();
+public InputStream open(String objectKey) {
+    var request = GetObjectRequest.builder()
+            .bucket(properties.bucket())
+            .key(objectKey)
+            .build();
 
-        return s3Client.getObjectAsBytes(request).asByteArray();
-    }
+    return s3Client.getObject(request);
+}
 
     @Override
     public void delete(String objectKey) {

@@ -1,5 +1,7 @@
 package dev.kirikopi.cafe.media;
 
+import java.util.UUID;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -7,8 +9,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
-
-import java.util.UUID;
 
 @Entity
 @Table(name = "media_asset")
@@ -59,6 +59,10 @@ class MediaAssetEntity {
 
     String contentType() {
         return contentType;
+    }
+
+    long sizeBytes() {
+    return sizeBytes;
     }
 
     String altText() {
